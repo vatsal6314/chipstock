@@ -1,0 +1,19 @@
+{
+  "name": "ChipStock - Hostel Chips & Snacks",
+  "short_name": "ChipStock",
+  "description": "Private inventory management and fast billing for hostel snacks",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F9FA",
+  "theme_color": "#F59E0B",
+  "categories": ["business", "finance", "utilities"],
+  "icons": [
+    {
+      "src": "/chip-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

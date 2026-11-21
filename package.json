@@ -1,0 +1,38 @@
+{
+  "name": "chipstock",
+  "version": "1.0.0",
+  "description": "ChipStock - Mobile-First Hostel Inventory & Billing System",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "node server/server.js",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"node server/server.js\" \"npm run dev --prefix client\"",
+    "build": "cd client && npm run build",
+    "test": "node --test tests/test-app.js",
+    "hash-password": "node -e \"const bcrypt = require('bcryptjs'); const pass = process.argv[1] || 'chipstock123'; bcrypt.hash(pass, 10).then(h => console.log('\\nAdmin Password:', pass, '\\nBcrypt Hash:', h, '\\n\\nAdd to .env:\\nADMIN_PASSWORD_HASH=' + h + '\\n'));\""
+  },
+  "keywords": [
+    "inventory",
+    "billing",
+    "pos",
+    "hostel",
+    "mobile-first"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5",
+    "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

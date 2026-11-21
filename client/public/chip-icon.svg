@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="128" fill="#F59E0B"/>
+  <circle cx="256" cy="256" r="220" fill="#FBBF24" opacity="0.3"/>
+  <g transform="translate(96, 96)">
+    <!-- Snack bag / Chips icon -->
+    <path d="M60 40 L260 40 L280 280 C280 295 265 310 240 310 L80 310 C55 310 40 295 40 280 Z" fill="#FFFFFF" rx="20"/>
+    <path d="M40 70 L280 70 L270 120 L50 120 Z" fill="#EF4444"/>
+    <path d="M50 130 Q160 170 270 130 L272 160 Q160 200 48 160 Z" fill="#F59E0B"/>
+    <!-- Crisp Potato Chip graphic -->
+    <ellipse cx="160" cy="225" rx="55" ry="35" transform="rotate(-15 160 225)" fill="#F59E0B" stroke="#D97706" stroke-width="6"/>
+    <path d="M125 215 Q160 235 195 210" stroke="#D97706" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M135 235 Q160 250 185 230" stroke="#D97706" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <!-- Lightning/Star Sparkle -->
+    <path d="M230 80 L238 95 L255 98 L242 110 L246 128 L230 118 L214 128 L218 110 L205 98 L222 95 Z" fill="#FDE047"/>
+  </g>
+</svg>

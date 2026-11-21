@@ -1,0 +1,120 @@
+import React, { useState } from 'react';
+import { Lock, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+
+export default function LoginPage() {
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login, isDefaultPassword } = useAuth();
+  const { addToast } = useToast();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!password) {
+      setError('Please enter admin password');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      await login(password);
+      addToast('Welcome back to ChipStock!', 'success');
+    } catch (err) {
+      setError(err.message || 'Incorrect password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        {/* App Logo */}
+        <div className="w-16 h-16 mx-auto rounded-3xl bg-amber-500 flex items-center justify-center text-3xl shadow-lg shadow-amber-200">
+          🍟
+        </div>
+        <h2 className="mt-4 text-center text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+          ChipStock
+        </h2>
+        <p className="mt-1 text-center text-sm text-zinc-600 font-medium">
+          Hostel Chips & Snacks Inventory POS
+        </p>
+      </div>
+
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-6 shadow-soft rounded-3xl border border-zinc-200/80 sm:px-10">
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-2"
+              >
+                Admin Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoFocus
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter admin password..."
+                  className="block w-full pl-11 pr-11 py-3 text-base rounded-2xl border border-zinc-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all placeholder:text-zinc-400 font-medium"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-400 hover:text-zinc-600 touch-btn"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm font-medium">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl shadow-sm text-base font-bold text-white bg-amber-500 hover:bg-amber-600 active:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all touch-btn disabled:opacity-70"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span>Unlock POS</span>
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Quick Helper for initial setup */}
+          <div className="mt-6 pt-5 border-t border-zinc-100 text-center">
+            <div className="inline-flex items-center gap-1.5 text-xs text-zinc-500 bg-zinc-50 px-3 py-1.5 rounded-full border border-zinc-200">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Default initial pass: <code className="font-mono font-bold text-zinc-700">chipstock123</code></span>
+            </div>
+            <p className="mt-2 text-[11px] text-zinc-400">
+              Change in Settings or via ADMIN_PASSWORD_HASH in your .env
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
