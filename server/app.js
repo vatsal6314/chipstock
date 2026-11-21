@@ -50,12 +50,21 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Routes
+// Routes (support both /api/... and direct serverless function routes)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/products', productRoutes);
+app.use('/products', productRoutes);
+
 app.use('/api/bills', billRoutes);
+app.use('/bills', billRoutes);
+
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/dashboard', dashboardRoutes);
+
 app.use('/api/settings', settingsRoutes);
+app.use('/settings', settingsRoutes);
 
 // 404 handler for API routes
 app.use('/api', (req, res) => {
