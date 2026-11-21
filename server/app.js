@@ -25,11 +25,12 @@ app.use(async (req, res, next) => {
   try {
     if (process.env.MONGODB_URI) {
       await connectDB();
+    } else {
+      global.isLocalMode = true;
     }
     next();
   } catch (err) {
     console.error('Database connection error in request middleware:', err.message);
-    // Don't crash health check or login page if DB is temporarily connecting
     if (req.path === '/api/health') {
       return res.status(503).json({ success: false, message: 'Database disconnected', error: err.message });
     }
@@ -57,7 +58,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
 
 // 404 handler for API routes
-app.use('/api/*', (req, res) => {
+app.use('/api', (req, res) => {
   res.status(404).json({ success: false, message: `API route ${req.originalUrl} not found` });
 });
 

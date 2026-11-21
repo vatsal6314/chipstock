@@ -27,7 +27,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
                 {settings?.businessName || 'ChipStock'}
               </span>
               <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800">
-                Hostel POS
+                POS
               </span>
             </div>
             <p className="text-[11px] text-zinc-500 font-medium leading-none">

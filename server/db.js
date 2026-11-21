@@ -10,8 +10,11 @@ async function connectDB() {
   const MONGODB_URI = process.env.MONGODB_URI;
 
   if (!MONGODB_URI) {
-    throw new Error('Please define the MONGODB_URI environment variable inside .env');
+    global.isLocalMode = true;
+    return null;
   }
+
+  global.isLocalMode = false;
 
   if (cached.conn) {
     return cached.conn;
@@ -30,6 +33,7 @@ async function connectDB() {
     }
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => {
+      console.log('Connected to MongoDB Atlas successfully');
       return m;
     });
   }

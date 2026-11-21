@@ -41,7 +41,7 @@ export default function LoginPage() {
           ChipStock
         </h2>
         <p className="mt-1 text-center text-sm text-zinc-600 font-medium">
-          Hostel Chips & Snacks Inventory POS
+          Snacks & Chips Inventory POS
         </p>
       </div>
 

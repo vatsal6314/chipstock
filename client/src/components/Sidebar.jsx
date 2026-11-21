@@ -28,7 +28,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
           <h1 className="font-extrabold text-lg text-zinc-900 tracking-tight leading-tight">
             {settings?.businessName || 'ChipStock'}
           </h1>
-          <p className="text-xs text-zinc-500 font-medium">Hostel Snack POS</p>
+          <p className="text-xs text-zinc-500 font-medium">Snack POS</p>
         </div>
       </div>
 

@@ -51,11 +51,11 @@ export default function DashboardPage({ setActiveTab, onQuickRestock }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-3xl border border-zinc-200/80 shadow-soft">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-2">
-            <span>Namaste, Admin</span>
-            <span className="text-xl">👋</span>
+            <span>Welcome to ChipStock</span>
+            <span className="text-xl">🍟</span>
           </h1>
           <p className="text-xs sm:text-sm text-zinc-500 font-medium mt-0.5">
-            Hostel snack inventory & sales live summary
+            Snack inventory & sales live summary
           </p>
         </div>
 
