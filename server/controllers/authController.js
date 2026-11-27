@@ -72,7 +72,6 @@ exports.me = (req, res) => {
     authenticated: true,
     user: req.user,
   });
-  });
 };
 
 exports.generateHash = async (req, res) => {
