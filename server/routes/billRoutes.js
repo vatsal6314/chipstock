@@ -9,5 +9,6 @@ router.post('/', billController.createBill);
 router.get('/', billController.getBills);
 router.get('/:id', billController.getBillById);
 router.patch('/:id/payment', billController.updatePaymentStatus);
+router.delete('/:id', billController.deleteBill);
 
 module.exports = router;

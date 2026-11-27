@@ -396,3 +396,89 @@ exports.updatePaymentStatus = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Failed to update payment status' });
   }
 };
+
+// Delete single Bill
+exports.deleteBill = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { restoreStock } = req.query;
+
+    if (global.isLocalMode) {
+      const billIndex = localStore.data.bills.findIndex((b) => b._id === id);
+      if (billIndex === -1) {
+        return res.status(404).json({ success: false, message: 'Bill not found' });
+      }
+
+      const bill = localStore.data.bills[billIndex];
+
+      // Restore stock if requested
+      if (restoreStock === 'true' && bill.items) {
+        for (const item of bill.items) {
+          const prod = localStore.data.products.find((p) => p._id === item.productId);
+          if (prod) {
+            prod.quantity += item.quantity;
+            localStore.data.stockMovements.push({
+              _id: localStore.generateId('mov'),
+              productId: prod._id,
+              movementType: 'ADJUSTMENT',
+              quantityChange: item.quantity,
+              reason: `Returned stock from deleted Bill #${bill.billNumber}`,
+              createdAt: new Date().toISOString(),
+            });
+          }
+        }
+      }
+
+      // Remove stock movements associated with this bill
+      localStore.data.stockMovements = localStore.data.stockMovements.filter(
+        (m) => String(m.billId) !== id
+      );
+
+      // Remove the bill
+      localStore.data.bills.splice(billIndex, 1);
+      localStore.save();
+
+      return res.json({
+        success: true,
+        message: `Bill #${bill.billNumber} has been deleted successfully.`,
+      });
+    }
+
+    // Atlas MongoDB Mode
+    const bill = await Bill.findById(id);
+    if (!bill) {
+      return res.status(404).json({ success: false, message: 'Bill not found' });
+    }
+
+    // Restore stock if requested
+    if (restoreStock === 'true' && bill.items) {
+      for (const item of bill.items) {
+        await Product.findByIdAndUpdate(item.productId, {
+          $inc: { quantity: item.quantity },
+        });
+
+        await StockMovement.create({
+          productId: item.productId,
+          movementType: 'ADJUSTMENT',
+          quantityChange: item.quantity,
+          reason: `Returned stock from deleted Bill #${bill.billNumber}`,
+          createdAt: new Date(),
+        });
+      }
+    }
+
+    // Delete associated stock movements
+    await StockMovement.deleteMany({ billId: bill._id });
+
+    // Delete bill
+    await Bill.findByIdAndDelete(id);
+
+    return res.json({
+      success: true,
+      message: `Bill #${bill.billNumber} has been deleted successfully.`,
+    });
+  } catch (error) {
+    console.error('Error deleting bill:', error);
+    return res.status(500).json({ success: false, message: 'Failed to delete bill' });
+  }
+};

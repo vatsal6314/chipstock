@@ -12,6 +12,8 @@ import {
   User,
   Home,
   Check,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import { apiRequest } from '../api';
 import { useToast } from '../context/ToastContext';
@@ -26,8 +28,13 @@ export default function HistoryPage({ initialSelectedBill, clearInitialSelectedB
   const [selectedBill, setSelectedBill] = useState(initialSelectedBill || null);
   const [updatingId, setUpdatingId] = useState(null);
 
+  // Bill Deletion State
+  const [billToDelete, setBillToDelete] = useState(null);
+  const [restoreStockOnDelete, setRestoreStockOnDelete] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const { addToast } = useToast();
-  const { settings } = useInventory();
+  const { settings, fetchProducts } = useInventory();
 
   const fetchBills = useCallback(async (isSilent = false) => {
     try {
@@ -86,6 +93,33 @@ export default function HistoryPage({ initialSelectedBill, clearInitialSelectedB
       addToast(err.message || 'Failed to update payment status', 'error');
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  // Delete bill handler
+  const handleDeleteBill = async () => {
+    if (!billToDelete) return;
+    try {
+      setIsDeleting(true);
+      const res = await apiRequest(`/bills/${billToDelete._id}?restoreStock=${restoreStockOnDelete}`, {
+        method: 'DELETE',
+      });
+      if (res.success) {
+        setBills((prev) => prev.filter((b) => b._id !== billToDelete._id));
+        if (selectedBill && selectedBill._id === billToDelete._id) {
+          setSelectedBill(null);
+        }
+        const bNum = billToDelete.billNumber;
+        setBillToDelete(null);
+        addToast(res.message || `Bill #${bNum} deleted successfully`, 'success');
+        if (restoreStockOnDelete) {
+          fetchProducts();
+        }
+      }
+    } catch (err) {
+      addToast(err.message || 'Failed to delete bill', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -270,29 +304,44 @@ export default function HistoryPage({ initialSelectedBill, clearInitialSelectedB
                     </div>
                   </div>
 
-                  {/* Mark as Paid Action Button for Unpaid Bills */}
-                  {!isPaid ? (
-                    <button
-                      onClick={(e) => handleTogglePayment(bill._id, bill.paymentStatus, e)}
-                      disabled={isUpdating}
-                      className="touch-btn px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition-colors"
-                      title="Mark as Paid"
-                    >
-                      <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      <span>Mark Paid</span>
-                    </button>
-                  ) : (
+                  {/* Actions for this bill */}
+                  <div className="flex items-center gap-1.5">
+                    {!isPaid ? (
+                      <button
+                        onClick={(e) => handleTogglePayment(bill._id, bill.paymentStatus, e)}
+                        disabled={isUpdating}
+                        className="touch-btn px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition-colors"
+                        title="Mark as Paid"
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>Mark Paid</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedBill(bill);
+                        }}
+                        className="touch-btn p-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-600 text-xs font-semibold"
+                        title="View Details"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
+                    )}
+
+                    {/* Delete Bill button on Card */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedBill(bill);
+                        setBillToDelete(bill);
+                        setRestoreStockOnDelete(true);
                       }}
-                      className="touch-btn p-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-600 text-xs font-semibold"
-                      title="View Details"
+                      className="touch-btn p-2 rounded-xl text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      title="Delete Bill"
                     >
-                      <ExternalLink className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
-                  )}
+                  </div>
                 </div>
               </div>
             );
@@ -429,6 +478,97 @@ export default function HistoryPage({ initialSelectedBill, clearInitialSelectedB
               >
                 <Printer className="w-4 h-4" />
                 <span>Print Receipt</span>
+              </button>
+
+              {/* Delete Bill button in Modal */}
+              <button
+                onClick={() => {
+                  setBillToDelete(selectedBill);
+                  setRestoreStockOnDelete(true);
+                }}
+                className="w-full py-3 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs flex items-center justify-center gap-2 touch-btn border border-red-200 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete This Bill</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: CONFIRM BILL DELETION ================= */}
+      {billToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+          <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-zinc-900">
+                  Delete Bill #{billToDelete.billNumber}?
+                </h2>
+                <p className="text-xs text-zinc-500">
+                  This action will permanently remove this bill from history.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-zinc-50 rounded-2xl border border-zinc-200 space-y-1.5 text-xs">
+              <div className="flex justify-between text-zinc-600">
+                <span>Total Amount:</span>
+                <strong className="text-zinc-900">₹{billToDelete.totalAmount}</strong>
+              </div>
+              <div className="flex justify-between text-zinc-600">
+                <span>Customer:</span>
+                <strong className="text-zinc-900">{billToDelete.customerName || 'Walk-in'}</strong>
+              </div>
+              <div className="flex justify-between text-zinc-600">
+                <span>Packets Sold:</span>
+                <strong className="text-zinc-900">
+                  {billToDelete.items?.reduce((s, i) => s + i.quantity, 0)} pieces
+                </strong>
+              </div>
+            </div>
+
+            {/* Restore Stock Checkbox Option */}
+            <label className="flex items-start gap-2.5 p-3 rounded-2xl bg-amber-50/80 border border-amber-200 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={restoreStockOnDelete}
+                onChange={(e) => setRestoreStockOnDelete(e.target.checked)}
+                className="mt-0.5 w-4 h-4 text-amber-500 rounded focus:ring-amber-400"
+              />
+              <div className="text-xs">
+                <span className="font-bold text-amber-950">Return packets back to inventory stock</span>
+                <p className="text-[11px] text-amber-800 mt-0.5">
+                  Restores the sold snack packets into available stock count.
+                </p>
+              </div>
+            </label>
+
+            <div className="pt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setBillToDelete(null)}
+                className="flex-1 py-3 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-xs touch-btn"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteBill}
+                disabled={isDeleting}
+                className="flex-1 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs shadow-md shadow-red-200 flex items-center justify-center gap-1.5 touch-btn disabled:opacity-70"
+              >
+                {isDeleting ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
