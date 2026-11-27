@@ -36,7 +36,13 @@ export async function apiRequest(endpoint, options = {}) {
       return blob;
     }
 
-    const data = await res.json();
+    let data;
+    if (contentType && contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      const text = await res.text();
+      data = { message: text && text.length < 150 ? text : `Request failed with status ${res.status}` };
+    }
 
     if (!res.ok) {
       const error = new Error(data.message || `Request failed with status ${res.status}`);

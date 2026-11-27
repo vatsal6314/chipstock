@@ -20,7 +20,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Database connection middleware (connects or reuses connection)
+// Database connection middleware (connects or reuses connection, gracefully falls back)
 app.use(async (req, res, next) => {
   try {
     if (process.env.MONGODB_URI) {
@@ -30,14 +30,9 @@ app.use(async (req, res, next) => {
     }
     next();
   } catch (err) {
-    console.error('Database connection error in request middleware:', err.message);
-    if (req.path === '/api/health') {
-      return res.status(503).json({ success: false, message: 'Database disconnected', error: err.message });
-    }
-    return res.status(503).json({
-      success: false,
-      message: 'Database connection failed. Please check your MONGODB_URI configuration.',
-    });
+    console.warn('MongoDB connection failed, falling back to local mode:', err.message);
+    global.isLocalMode = true;
+    next();
   }
 });
 

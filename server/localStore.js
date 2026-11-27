@@ -1,7 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 
-const DB_FILE = path.join(__dirname, '../data/local-db.json');
+const isServerless = Boolean(
+  process.env.LAMBDA_TASK_ROOT ||
+  process.env.NETLIFY ||
+  process.env.AWS_EXECUTION_ENV ||
+  process.env.VERCEL
+);
+
+const DB_FILE = isServerless
+  ? path.join('/tmp', 'local-db.json')
+  : path.join(__dirname, '../data/local-db.json');
 
 // Initial seed snacks for instant hostel POS demo
 const DEFAULT_PRODUCTS = [
