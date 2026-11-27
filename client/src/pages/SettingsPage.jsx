@@ -283,15 +283,6 @@ export default function SettingsPage() {
           <h2 className="font-extrabold text-base text-zinc-900">Admin Security & Password Hash</h2>
         </div>
 
-        {isDefaultPassword && (
-          <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 flex-shrink-0 text-amber-600" />
-            <span>
-              You are currently using the default development password (<code>chipstock123</code>). Generate a custom hash below and add it to your Netlify / .env settings.
-            </span>
-          </div>
-        )}
-
         <form onSubmit={handleGenerateHash} className="space-y-3">
           <div>
             <label className="block text-xs font-bold text-zinc-700 mb-1">

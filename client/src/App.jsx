@@ -10,6 +10,7 @@ import Sidebar from './components/Sidebar';
 import OfflineBanner from './components/OfflineBanner';
 
 import LoginPage from './pages/LoginPage';
+import StockViewPage from './pages/StockViewPage';
 import DashboardPage from './pages/DashboardPage';
 import InventoryPage from './pages/InventoryPage';
 import SellPage from './pages/SellPage';
@@ -19,6 +20,7 @@ import SettingsPage from './pages/SettingsPage';
 function MainApp() {
   const { isAuthenticated, isChecking } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [viewMode, setViewMode] = useState('login'); // 'login' or 'stock_view'
 
   // Inter-tab communication state
   const [quickRestockProduct, setQuickRestockProduct] = useState(null);
@@ -38,9 +40,12 @@ function MainApp() {
     );
   }
 
-  // If not authenticated, show sleek admin login screen
+  // If not authenticated, support two modes: Admin Login or Stock View
   if (!isAuthenticated) {
-    return <LoginPage />;
+    if (viewMode === 'stock_view') {
+      return <StockViewPage onSwitchToAdminLogin={() => setViewMode('login')} />;
+    }
+    return <LoginPage onEnterStockView={() => setViewMode('stock_view')} />;
   }
 
   const handleQuickRestock = (product) => {

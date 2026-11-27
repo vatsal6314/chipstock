@@ -49,7 +49,6 @@ exports.login = async (req, res) => {
       token,
       message: 'Logged in successfully',
       user: { role: 'admin' },
-      isDefaultPassword: !envHash,
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -67,7 +66,7 @@ exports.me = (req, res) => {
     success: true,
     authenticated: true,
     user: req.user,
-    isDefaultPassword: !process.env.ADMIN_PASSWORD_HASH,
+  });
   });
 };
 

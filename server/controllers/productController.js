@@ -3,7 +3,35 @@ const StockMovement = require('../models/StockMovement');
 const Bill = require('../models/Bill');
 const localStore = require('../localStore');
 
-// Get all products
+// Public read-only product list for View Stock mode
+exports.getPublicProducts = async (req, res) => {
+  try {
+    if (global.isLocalMode) {
+      const products = localStore.data.products
+        .filter((p) => p.isActive)
+        .map((p) => ({
+          _id: p._id,
+          name: p.name,
+          colour: p.colour,
+          price: p.price,
+          quantity: p.quantity,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      return res.json({ success: true, count: products.length, products });
+    }
+
+    const products = await Product.find({ isActive: true })
+      .select('name colour price quantity')
+      .sort({ name: 1 });
+
+    return res.json({ success: true, count: products.length, products });
+  } catch (error) {
+    console.error('Error fetching public products:', error);
+    return res.status(500).json({ success: false, message: 'Failed to fetch snack stock' });
+  }
+};
+
+// Get all products (Admin)
 exports.getProducts = async (req, res) => {
   try {
     const { status, search } = req.query;

@@ -6,7 +6,6 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-  const [isDefaultPassword, setIsDefaultPassword] = useState(false);
 
   const checkAuth = async () => {
     try {
@@ -14,7 +13,6 @@ export const AuthProvider = ({ children }) => {
       const res = await apiRequest('/auth/me');
       if (res && res.authenticated) {
         setIsAuthenticated(true);
-        setIsDefaultPassword(Boolean(res.isDefaultPassword));
       } else {
         setIsAuthenticated(false);
       }
@@ -39,7 +37,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('chipstock_token', res.token);
     }
     setIsAuthenticated(true);
-    setIsDefaultPassword(Boolean(res.isDefaultPassword));
     return res;
   };
 
@@ -59,7 +56,6 @@ export const AuthProvider = ({ children }) => {
       value={{
         isAuthenticated,
         isChecking,
-        isDefaultPassword,
         login,
         logout,
         checkAuth,

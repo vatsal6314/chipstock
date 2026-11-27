@@ -3,6 +3,9 @@ const router = express.Router();
 const productController = require('../controllers/productController');
 const { authMiddleware } = require('../middleware/auth');
 
+// Public route for View Stock mode (no admin authentication needed)
+router.get('/public', productController.getPublicProducts);
+
 router.use(authMiddleware);
 
 router.get('/', productController.getProducts);
